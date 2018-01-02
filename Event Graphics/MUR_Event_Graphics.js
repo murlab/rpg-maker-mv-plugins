@@ -1,12 +1,12 @@
 //=============================================================================
-// MUR Event Graphics v1.0
+// MUR Event Graphics v1.1
 // by MUR (https://github.com/murlab)
 // BSD 3-Clause License
 // Free for use with both free and commercial RPG Maker games.
 //=============================================================================
 
 /*:en
- * @plugindesc v1.0 Graphics for events
+ * @plugindesc v1.1 Graphics for events
  * @author Mur
  * @help This plug-in does not have any additional settings, and all control takes
  * place through comments at the beginning of the event:
@@ -55,7 +55,7 @@
  *
  */
  /*:ru
-* @plugindesc v1.0 Графика для событий
+* @plugindesc v1.1 Графика для событий
  * @author Mur
  * @help Данный плагин не имеет дополнительных настроек, а всё управление происходит
  * через комментарии в начале события:
@@ -116,6 +116,10 @@
         [6,0],[6,1],[6,2],
         [8,0],[8,1],[8,2]
     ]
+    
+    var eventsBgImage = new Array();
+    var eventsFgImage = new Array();
+    var eventsShadow = new Array();
 
     var Game_Event_setupPageSettings = Game_Event.prototype.setupPageSettings;
     Game_Event.prototype.setupPageSettings = function() {
@@ -146,23 +150,23 @@
                         this._eventHSlideSpeed = hSlide[1] ? Number(hSlide[1]) : 0;
                     }
                 }
-                if (this._eventBgImage == undefined && this._eventBgImageOffsetX == undefined && this._eventBgImageOffsetY == undefined) {
+                if (eventsBgImage[this._eventId] == undefined && this._eventBgImageOffsetX == undefined && this._eventBgImageOffsetY == undefined) {
                     if(comments.match(/<set_event_bg_gfx:\s*(.*)>/im)) {
                         var bgGfx = comments.match(/<set_event_bg_gfx:\s*(.*)>/im)[1].split(/(?:\s+,\s+|,\s+|\s+,|\s+|,)/);
-                        this._eventBgImage = new Sprite();
+                        eventsBgImage[this._eventId] = new Sprite();
+                        eventsBgImage[this._eventId].bitmap = ImageManager.loadBitmap('img/events/', bgGfx[0], null, true);
                         this._eventBgImageNew = true;
-                        this._eventBgImage.bitmap = ImageManager.loadBitmap('img/events/', bgGfx[0], null, true);
                         this._eventBgImageOffsetX = bgGfx[1] ? Number(bgGfx[1]) : 0;
                         this._eventBgImageOffsetY = bgGfx[2] ? Number(bgGfx[2]) : 0;
                     }
                 }
-                if (this._eventFgImage == undefined && this._eventFgImageOffsetX == undefined && this._eventFgImageOffsetY == undefined) {
+                if (eventsFgImage[this._eventId] == undefined && this._eventFgImageOffsetX == undefined && this._eventFgImageOffsetY == undefined) {
                     var comments = this.getEventComments();
                     if(comments.match(/<set_event_fg_gfx:\s*(.*)>/im)) {
                         var fgGfx = comments.match(/<set_event_fg_gfx:\s*(.*)>/im)[1].split(/(?:\s+,\s+|,\s+|\s+,|\s+|,)/);
-                        this._eventFgImage = new Sprite();
+                        eventsFgImage[this._eventId] = new Sprite();
+                        eventsFgImage[this._eventId].bitmap = ImageManager.loadBitmap('img/events/', fgGfx[0], null, true);
                         this._eventFgImageNew = true;
-                        this._eventFgImage.bitmap = ImageManager.loadBitmap('img/events/', fgGfx[0], null, true);
                         this._eventFgImageOffsetX = fgGfx[1] ? Number(fgGfx[1]) : 0;
                         this._eventFgImageOffsetY = fgGfx[2] ? Number(fgGfx[2]) : 0;
                     }
@@ -187,20 +191,20 @@
                         this._eventJumpSpeed = jump[1] ? Number(jump[1]) : 0;
                     }
                 }
-                if (this._eShadow == undefined && this._eShadowOffsetX == undefined && this._eShadowOffsetY == undefined) {
+                if (eventsShadow[this._eventId] == undefined && this._eShadowOffsetX == undefined && this._eShadowOffsetY == undefined) {
                     if(comments.match(/<set_event_shadow_to:\s*(.*)>/im)) {
                         var shadow = comments.match(/<set_event_shadow_to:\s*(.*)>/im)[1].split(/(?:\s+,\s+|,\s+|\s+,|\s+|,)/);
-                        this._eShadow = new Sprite();
+                        eventsShadow[this._eventId] = new Sprite();
+                        eventsShadow[this._eventId].bitmap = ImageManager.loadBitmap('img/events/', shadow[0], null, true);
                         this._eShadowNew = true;
-                        this._eShadow.bitmap = ImageManager.loadBitmap('img/events/', shadow[0], null, true);
                         this._eShadowOffsetX = shadow[1] ? Number(shadow[1]) : 0;
                         this._eShadowOffsetY = shadow[2] ? Number(shadow[2]) : 0;
                     } 
                 }
             } else {
-                if (this._eShadow != undefined) { this._eShadowDelete = true; }
-                if (this._eventBgImage != undefined) { this._eventBgImageDelete = true; }
-                if (this._eventFgImage != undefined) { this._eventFgImageDelete = true; }
+                if (eventsShadow[this._eventId] != undefined) { this._eShadowDelete = true; }
+                if (eventsBgImage[this._eventId] != undefined) { this._eventBgImageDelete = true; }
+                if (eventsFgImage[this._eventId] != undefined) { this._eventFgImageDelete = true; }
                 if (this._eventAniFrames != undefined) { this._eventAniFrames = undefined; }
                 if (this._eventJumpHeight != undefined) {
                     this._eventJumpHeight = undefined;
@@ -225,40 +229,39 @@
 
         var char = this._character;
         if(char instanceof Game_Event) {
-
-            if (char._eShadow != undefined && char._eShadowDelete == true) {
-                this.parent.removeChild(char._eShadow);
-                delete char._eShadow;
+            if (eventsShadow[char._eventId] != undefined && char._eShadowDelete == true) {
+                this.parent.removeChild(eventsShadow[char._eventId]);
+                delete eventsShadow[char._eventId];
                 char._eShadowOffsetX = undefined;
                 char._eShadowOffsetY = undefined;
                 char._eShadowDelete = false;
             }
-            if (char._eventBgImage != undefined && char._eventBgImageDelete == true) {
-                this.parent.removeChild(char._eventBgImage);
-                delete char._eventBgImage;
+            if (eventsBgImage[char._eventId] != undefined && char._eventBgImageDelete == true) {
+                this.parent.removeChild(eventsBgImage[char._eventId]);
+                delete eventsBgImage[char._eventId];
                 char._eventBgImageOffsetX = undefined;
                 char._eventBgImageOffsetY = undefined;
                 char._eventBgImageDelete = false;
             }
-            if (char._eventFgImage != undefined && char._eventFgImageDelete == true) {
-                this.parent.removeChild(char._eventFgImage);
-                delete char._eventFgImage;
+            if (eventsFgImage[char._eventId] != undefined && char._eventFgImageDelete == true) {
+                this.parent.removeChild(eventsFgImage[char._eventId]);
+                delete eventsFgImage[char._eventId];
                 char._eventFgImageOffsetX = undefined;
                 char._eventFgImageOffsetY = undefined;
                 char._eventFgImageDelete = false;
             }
             
-            if (char._eShadow != undefined && char._eShadowNew && char._eShadow.bitmap.isReady()) {
+            if (eventsShadow[char._eventId] != undefined && char._eShadowNew && eventsShadow[char._eventId].bitmap.isReady()) {
                 var selfPosition = this.parent.children.indexOf(this);
-                this.parent.addChildAt(char._eShadow, selfPosition);
+                this.parent.addChildAt(eventsShadow[char._eventId], selfPosition);
                 char._eShadowNew = false;
-                char._eShadow.z = 1;
+                eventsShadow[char._eventId].z = 1;
             }
             if (char._eShadowOffsetX != undefined && char._eShadowOffsetY != undefined) {
-                var shadowWidth = char._eShadow.bitmap.width;
-                var shadowHeight = char._eShadow.bitmap.height;
-                char._eShadow.move(this.x + char._eShadowOffsetX - shadowWidth/2, this.y + char._eShadowOffsetY - shadowHeight);
-                char._eShadow.z = this.z;
+                var shadowWidth = eventsShadow[char._eventId].bitmap.width;
+                var shadowHeight = eventsShadow[char._eventId].bitmap.height;
+                eventsShadow[char._eventId].move(this.x + char._eShadowOffsetX - shadowWidth/2, this.y + char._eShadowOffsetY - shadowHeight);
+                eventsShadow[char._eventId].z = this.z;
             }
             
             if (char._eventGfxOffsetX != undefined && char._eventGfxOffsetX != 0) { this.x += char._eventGfxOffsetX; }
@@ -269,14 +272,14 @@
                 char._eventVSlideSpeed != undefined && char._eventVSlideSpeed != 0) {
                 char.vAngle += angleRad/10 * char._eventVSlideSpeed;
                 this.y += char._eventVSlideSize * Math.cos(char.vAngle) - char._eventVSlideSize;
-                if (char._eShadow != undefined) {
-                    char._eShadow.alpha = 1 + Math.cos(char.vAngle)/2;
+                if (eventsShadow[char._eventId] != undefined) {
+                    eventsShadow[char._eventId].alpha = 1 + Math.cos(char.vAngle)/2;
                     var scalePart = char._eventVSlideSize * 4;
                     var scale = (1-(1/scalePart)) + Math.cos(char.vAngle)/scalePart;
-                    char._eShadow.scale.x = scale;
-                    char._eShadow.scale.y = scale;
-                    var shiftX = (char._eShadow.bitmap.width - char._eShadow.bitmap.width * scale) / 2;
-                    char._eShadow.x += shiftX;
+                    eventsShadow[char._eventId].scale.x = scale;
+                    eventsShadow[char._eventId].scale.y = scale;
+                    var shiftX = (eventsShadow[char._eventId].bitmap.width - eventsShadow[char._eventId].bitmap.width * scale) / 2;
+                    eventsShadow[char._eventId].x += shiftX;
                 }
             }
             if (char._eventHSlideSize != undefined && char._eventHSlideSize != 0 &&
@@ -284,23 +287,23 @@
                 char.hAngle += angleRad/10 * char._eventHSlideSpeed;
                 this.x += char._eventHSlideSize * Math.sin(char.hAngle) - char._eventHSlideSize;
             }
-            if (char._eventBgImage != undefined && char._eventBgImageNew && char._eventBgImage.bitmap.isReady()) {
+            if (eventsBgImage[char._eventId] != undefined && char._eventBgImageNew && eventsBgImage[char._eventId].bitmap.isReady()) {
                 var selfPosition = this.parent.children.indexOf(this);
-                this.parent.addChildAt(char._eventBgImage, selfPosition);
+                this.parent.addChildAt(eventsBgImage[char._eventId], selfPosition);
                 char._eventBgImageNew = false;
             }
             if (char._eventBgImageOffsetX != undefined && char._eventBgImageOffsetY != undefined) {
-                char._eventBgImage.move(this.x + char._eventBgImageOffsetX, this.y + char._eventBgImageOffsetY);
-                char._eventBgImage.z = this.z;
+                eventsBgImage[char._eventId].move(this.x + char._eventBgImageOffsetX, this.y + char._eventBgImageOffsetY);
+                eventsBgImage[char._eventId].z = this.z;
             }
-            if (char._eventFgImage != undefined && char._eventFgImageNew && char._eventFgImage.bitmap.isReady()) {
+            if (eventsFgImage[char._eventId] != undefined && char._eventFgImageNew && eventsFgImage[char._eventId].bitmap.isReady()) {
                 var selfPosition = this.parent.children.indexOf(this);
-                this.parent.addChildAt(char._eventFgImage, selfPosition+1);
+                this.parent.addChildAt(eventsFgImage[char._eventId], selfPosition+1);
                 char._eventFgImageNew = false;
             }
             if (char._eventFgImageOffsetX != undefined && char._eventFgImageOffsetY != undefined) {
-                char._eventFgImage.move(this.x + char._eventFgImageOffsetX, this.y + char._eventFgImageOffsetY);
-                char._eventFgImage.z = 100;
+                eventsFgImage[char._eventId].move(this.x + char._eventFgImageOffsetX, this.y + char._eventFgImageOffsetY);
+                eventsFgImage[char._eventId].z = 100;
             }
             if (char._eventAniFrames != undefined && char._eventAniPause != undefined && char._eventAniSpeed != 0 && char._eventAniReverse != undefined ) {
                 if (char._eventAniPauseCurrent == 0) {
@@ -337,15 +340,15 @@
                 char._eventJumpSpeed != undefined && char._eventJumpSpeed != 0) {
                 char.vAngle += angleRad/10 * char._eventJumpSpeed;
                 this.y += char._eventJumpHeight * -Math.abs(Math.cos(char.vAngle)) - char._eventJumpHeight;
-                if (char._eShadow != undefined) {
-                    char._eShadow.alpha = 1 - Math.abs(Math.cos(char.vAngle))/2;
+                if (eventsShadow[char._eventId] != undefined) {
+                    eventsShadow[char._eventId].alpha = 1 - Math.abs(Math.cos(char.vAngle))/2;
                     
                     var scalePart = char._eventJumpHeight * 4;
                     var scale = (1-(1/scalePart)) - Math.abs(Math.cos(char.vAngle))/scalePart;
-                    char._eShadow.scale.x = scale;
-                    char._eShadow.scale.y = scale;
-                    var shiftX = (char._eShadow.bitmap.width - char._eShadow.bitmap.width * scale) / 2;
-                    char._eShadow.x += shiftX;
+                    eventsShadow[char._eventId].scale.x = scale;
+                    eventsShadow[char._eventId].scale.y = scale;
+                    var shiftX = (eventsShadow[char._eventId].bitmap.width - eventsShadow[char._eventId].bitmap.width * scale) / 2;
+                    eventsShadow[char._eventId].x += shiftX;
                 }
             }
             
