@@ -1,12 +1,12 @@
 //=============================================================================
-// MUR Event Graphics v1.1
+// MUR Event Graphics v1.2
 // by MUR (https://github.com/murlab)
 // BSD 3-Clause License
 // Free for use with both free and commercial RPG Maker games.
 //=============================================================================
 
 /*:en
- * @plugindesc v1.1 Graphics for events
+ * @plugindesc v1.2 Graphics for events
  * @author Mur
  * @help This plug-in does not have any additional settings, and all control takes
  * place through comments at the beginning of the event:
@@ -55,7 +55,7 @@
  *
  */
  /*:ru
-* @plugindesc v1.1 Графика для событий
+* @plugindesc v1.2 Графика для событий
  * @author Mur
  * @help Данный плагин не имеет дополнительных настроек, а всё управление происходит
  * через комментарии в начале события:
@@ -155,7 +155,6 @@
                         var bgGfx = comments.match(/<set_event_bg_gfx:\s*(.*)>/im)[1].split(/(?:\s+,\s+|,\s+|\s+,|\s+|,)/);
                         eventsBgImage[this._eventId] = new Sprite();
                         eventsBgImage[this._eventId].bitmap = ImageManager.loadBitmap('img/events/', bgGfx[0], null, true);
-                        this._eventBgImageNew = true;
                         this._eventBgImageOffsetX = bgGfx[1] ? Number(bgGfx[1]) : 0;
                         this._eventBgImageOffsetY = bgGfx[2] ? Number(bgGfx[2]) : 0;
                     }
@@ -166,7 +165,6 @@
                         var fgGfx = comments.match(/<set_event_fg_gfx:\s*(.*)>/im)[1].split(/(?:\s+,\s+|,\s+|\s+,|\s+|,)/);
                         eventsFgImage[this._eventId] = new Sprite();
                         eventsFgImage[this._eventId].bitmap = ImageManager.loadBitmap('img/events/', fgGfx[0], null, true);
-                        this._eventFgImageNew = true;
                         this._eventFgImageOffsetX = fgGfx[1] ? Number(fgGfx[1]) : 0;
                         this._eventFgImageOffsetY = fgGfx[2] ? Number(fgGfx[2]) : 0;
                     }
@@ -196,14 +194,13 @@
                         var shadow = comments.match(/<set_event_shadow_to:\s*(.*)>/im)[1].split(/(?:\s+,\s+|,\s+|\s+,|\s+|,)/);
                         eventsShadow[this._eventId] = new Sprite();
                         eventsShadow[this._eventId].bitmap = ImageManager.loadBitmap('img/events/', shadow[0], null, true);
-                        this._eShadowNew = true;
                         this._eShadowOffsetX = shadow[1] ? Number(shadow[1]) : 0;
                         this._eShadowOffsetY = shadow[2] ? Number(shadow[2]) : 0;
                     } 
                 }
             } else {
                 if (eventsShadow[this._eventId] != undefined) { this._eShadowDelete = true; }
-                if (eventsBgImage[this._eventId] != undefined) { this._eventBgImageDelete = true; }
+                if (eventsBgImage[this._eventId] != undefined) {this._eventBgImageDelete = true; }
                 if (eventsFgImage[this._eventId] != undefined) { this._eventFgImageDelete = true; }
                 if (this._eventAniFrames != undefined) { this._eventAniFrames = undefined; }
                 if (this._eventJumpHeight != undefined) {
@@ -251,10 +248,10 @@
                 char._eventFgImageDelete = false;
             }
             
-            if (eventsShadow[char._eventId] != undefined && char._eShadowNew && eventsShadow[char._eventId].bitmap.isReady()) {
+            if (eventsShadow[char._eventId] != undefined && eventsShadow[char._eventId]._isNew && eventsShadow[char._eventId].bitmap.isReady()) {
                 var selfPosition = this.parent.children.indexOf(this);
                 this.parent.addChildAt(eventsShadow[char._eventId], selfPosition);
-                char._eShadowNew = false;
+                eventsShadow[char._eventId]._isNew = false;
                 eventsShadow[char._eventId].z = 1;
             }
             if (char._eShadowOffsetX != undefined && char._eShadowOffsetY != undefined) {
@@ -287,19 +284,19 @@
                 char.hAngle += angleRad/10 * char._eventHSlideSpeed;
                 this.x += char._eventHSlideSize * Math.sin(char.hAngle) - char._eventHSlideSize;
             }
-            if (eventsBgImage[char._eventId] != undefined && char._eventBgImageNew && eventsBgImage[char._eventId].bitmap.isReady()) {
+            if (eventsBgImage[char._eventId] != undefined && eventsBgImage[char._eventId]._isNew && eventsBgImage[char._eventId].bitmap.isReady()) {
                 var selfPosition = this.parent.children.indexOf(this);
                 this.parent.addChildAt(eventsBgImage[char._eventId], selfPosition);
-                char._eventBgImageNew = false;
+                eventsBgImage[char._eventId]._isNew = false;
             }
             if (char._eventBgImageOffsetX != undefined && char._eventBgImageOffsetY != undefined) {
                 eventsBgImage[char._eventId].move(this.x + char._eventBgImageOffsetX, this.y + char._eventBgImageOffsetY);
                 eventsBgImage[char._eventId].z = this.z;
             }
-            if (eventsFgImage[char._eventId] != undefined && char._eventFgImageNew && eventsFgImage[char._eventId].bitmap.isReady()) {
+            if (eventsFgImage[char._eventId] != undefined && eventsFgImage[char._eventId]._isNew && eventsFgImage[char._eventId].bitmap.isReady()) {
                 var selfPosition = this.parent.children.indexOf(this);
                 this.parent.addChildAt(eventsFgImage[char._eventId], selfPosition+1);
-                char._eventFgImageNew = false;
+                eventsFgImage[char._eventId]._isNew = false;
             }
             if (char._eventFgImageOffsetX != undefined && char._eventFgImageOffsetY != undefined) {
                 eventsFgImage[char._eventId].move(this.x + char._eventFgImageOffsetX, this.y + char._eventFgImageOffsetY);
@@ -364,5 +361,19 @@
         }
         return comments;
     };
+    
+    var Spriteset_Map_createCharacters = Spriteset_Map.prototype.createCharacters;
+    Spriteset_Map.prototype.createCharacters = function() {
+        Spriteset_Map_createCharacters.call(this);
+        eventsBgImage.forEach(function callback(currentValue, index, array) {
+            eventsBgImage[index]._isNew = true;
+        });
+        eventsFgImage.forEach(function callback(currentValue, index, array) {
+            eventsFgImage[index]._isNew = true;
+        });
+        eventsShadow.forEach(function callback(currentValue, index, array) {
+            eventsShadow[index]._isNew = true;
+        });
+    }
 
 })();
