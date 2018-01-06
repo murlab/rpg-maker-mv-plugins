@@ -1,12 +1,12 @@
 //=============================================================================
-// MUR Event Graphics v1.2
+// MUR Event Graphics v1.3
 // by MUR (https://github.com/murlab)
 // BSD 3-Clause License
 // Free for use with both free and commercial RPG Maker games.
 //=============================================================================
 
 /*:en
- * @plugindesc v1.2 Graphics for events
+ * @plugindesc v1.3 Graphics for events
  * @author Mur
  * @help This plug-in does not have any additional settings, and all control takes
  * place through comments at the beginning of the event:
@@ -55,7 +55,7 @@
  *
  */
  /*:ru
-* @plugindesc v1.2 Графика для событий
+* @plugindesc v1.3 Графика для событий
  * @author Mur
  * @help Данный плагин не имеет дополнительных настроек, а всё управление происходит
  * через комментарии в начале события:
@@ -202,7 +202,11 @@
                 if (eventsShadow[this._eventId] != undefined) { this._eShadowDelete = true; }
                 if (eventsBgImage[this._eventId] != undefined) {this._eventBgImageDelete = true; }
                 if (eventsFgImage[this._eventId] != undefined) { this._eventFgImageDelete = true; }
-                if (this._eventAniFrames != undefined) { this._eventAniFrames = undefined; }
+                if (this._eventAniFrames != undefined) {
+                    this._eventAniFrames = undefined;
+                    this._eventAniPause = undefined;
+                    this._eventAniReverse = undefined;
+                }
                 if (this._eventJumpHeight != undefined) {
                     this._eventJumpHeight = undefined;
                     this._eventJumpSpeed = undefined;
@@ -362,9 +366,9 @@
         return comments;
     };
     
-    var Spriteset_Map_createCharacters = Spriteset_Map.prototype.createCharacters;
-    Spriteset_Map.prototype.createCharacters = function() {
-        Spriteset_Map_createCharacters.call(this);
+    var Game_Event_setupPage = Game_Event.prototype.setupPage;
+    Game_Event.prototype.setupPage = function() {
+        Game_Event_setupPage.call(this);
         eventsBgImage.forEach(function callback(currentValue, index, array) {
             eventsBgImage[index]._isNew = true;
         });
