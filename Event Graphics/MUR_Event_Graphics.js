@@ -1,12 +1,12 @@
 //=============================================================================
-// MUR Event Graphics v1.3
+// MUR Event Graphics v1.4
 // by MUR (https://github.com/murlab)
 // BSD 3-Clause License
 // Free for use with both free and commercial RPG Maker games.
 //=============================================================================
 
 /*:en
- * @plugindesc v1.3 Graphics for events
+ * @plugindesc v1.4 Graphics for events
  * @author Mur
  * @help This plug-in does not have any additional settings, and all control takes
  * place through comments at the beginning of the event:
@@ -55,7 +55,7 @@
  *
  */
  /*:ru
-* @plugindesc v1.3 Графика для событий
+* @plugindesc v1.4 Графика для событий
  * @author Mur
  * @help Данный плагин не имеет дополнительных настроек, а всё управление происходит
  * через комментарии в начале события:
@@ -123,6 +123,7 @@
 
     var Game_Event_setupPageSettings = Game_Event.prototype.setupPageSettings;
     Game_Event.prototype.setupPageSettings = function() {
+        
         if (this.page()) {
             var comments = this.getEventComments();
             if (comments != undefined && comments != "") {
@@ -157,6 +158,7 @@
                         eventsBgImage[this._eventId].bitmap = ImageManager.loadBitmap('img/events/', bgGfx[0], null, true);
                         this._eventBgImageOffsetX = bgGfx[1] ? Number(bgGfx[1]) : 0;
                         this._eventBgImageOffsetY = bgGfx[2] ? Number(bgGfx[2]) : 0;
+                        eventsBgImage[this._eventId]._isNew = true;
                     }
                 }
                 if (eventsFgImage[this._eventId] == undefined && this._eventFgImageOffsetX == undefined && this._eventFgImageOffsetY == undefined) {
@@ -167,6 +169,7 @@
                         eventsFgImage[this._eventId].bitmap = ImageManager.loadBitmap('img/events/', fgGfx[0], null, true);
                         this._eventFgImageOffsetX = fgGfx[1] ? Number(fgGfx[1]) : 0;
                         this._eventFgImageOffsetY = fgGfx[2] ? Number(fgGfx[2]) : 0;
+                        eventsFgImage[this._eventId]._isNew = true;
                     }
                 }
                 if (this._eventAniFrames == undefined && this._eventAniPause == undefined && this._eventAniReverse == undefined ) {
@@ -196,28 +199,8 @@
                         eventsShadow[this._eventId].bitmap = ImageManager.loadBitmap('img/events/', shadow[0], null, true);
                         this._eShadowOffsetX = shadow[1] ? Number(shadow[1]) : 0;
                         this._eShadowOffsetY = shadow[2] ? Number(shadow[2]) : 0;
+                        eventsShadow[this._eventId]._isNew = true;
                     } 
-                }
-            } else {
-                if (eventsShadow[this._eventId] != undefined) { this._eShadowDelete = true; }
-                if (eventsBgImage[this._eventId] != undefined) {this._eventBgImageDelete = true; }
-                if (eventsFgImage[this._eventId] != undefined) { this._eventFgImageDelete = true; }
-                if (this._eventAniFrames != undefined) {
-                    this._eventAniFrames = undefined;
-                    this._eventAniPause = undefined;
-                    this._eventAniReverse = undefined;
-                }
-                if (this._eventJumpHeight != undefined) {
-                    this._eventJumpHeight = undefined;
-                    this._eventJumpSpeed = undefined;
-                }
-                if (this._eventVSlideSize != undefined) {
-                    this._eventVSlideSize = undefined;
-                    this._eventVSlideSpeed = undefined;
-                }
-                if (this._eventHSlideSize != undefined) {
-                    this._eventHSlideSize = undefined;
-                    this._eventHSlideSpeed = undefined;
                 }
             }
         }
@@ -229,40 +212,21 @@
         Sprite_Character_updatePosition.call(this);
 
         var char = this._character;
-        if(char instanceof Game_Event) {
-            if (eventsShadow[char._eventId] != undefined && char._eShadowDelete == true) {
-                this.parent.removeChild(eventsShadow[char._eventId]);
-                delete eventsShadow[char._eventId];
-                char._eShadowOffsetX = undefined;
-                char._eShadowOffsetY = undefined;
-                char._eShadowDelete = false;
-            }
-            if (eventsBgImage[char._eventId] != undefined && char._eventBgImageDelete == true) {
-                this.parent.removeChild(eventsBgImage[char._eventId]);
-                delete eventsBgImage[char._eventId];
-                char._eventBgImageOffsetX = undefined;
-                char._eventBgImageOffsetY = undefined;
-                char._eventBgImageDelete = false;
-            }
-            if (eventsFgImage[char._eventId] != undefined && char._eventFgImageDelete == true) {
-                this.parent.removeChild(eventsFgImage[char._eventId]);
-                delete eventsFgImage[char._eventId];
-                char._eventFgImageOffsetX = undefined;
-                char._eventFgImageOffsetY = undefined;
-                char._eventFgImageDelete = false;
-            }
-            
-            if (eventsShadow[char._eventId] != undefined && eventsShadow[char._eventId]._isNew && eventsShadow[char._eventId].bitmap.isReady()) {
-                var selfPosition = this.parent.children.indexOf(this);
-                this.parent.addChildAt(eventsShadow[char._eventId], selfPosition);
-                eventsShadow[char._eventId]._isNew = false;
-                eventsShadow[char._eventId].z = 1;
-            }
-            if (char._eShadowOffsetX != undefined && char._eShadowOffsetY != undefined) {
-                var shadowWidth = eventsShadow[char._eventId].bitmap.width;
-                var shadowHeight = eventsShadow[char._eventId].bitmap.height;
-                eventsShadow[char._eventId].move(this.x + char._eShadowOffsetX - shadowWidth/2, this.y + char._eShadowOffsetY - shadowHeight);
-                eventsShadow[char._eventId].z = this.z;
+        if(char instanceof Game_Event) {        
+            // !!! Always check shadows before change positions !!!
+            if (eventsShadow[char._eventId] != undefined) {
+                if (eventsShadow[char._eventId]._isNew && eventsShadow[char._eventId].bitmap.isReady()) {
+                    var selfPosition = this.parent.children.indexOf(this);
+                    this.parent.addChildAt(eventsShadow[char._eventId], selfPosition);
+                    eventsShadow[char._eventId]._isNew = false;
+                    eventsShadow[char._eventId].z = 1;
+                }
+                if (char._eShadowOffsetX != undefined && char._eShadowOffsetY != undefined) {
+                    var shadowWidth = eventsShadow[char._eventId].bitmap.width;
+                    var shadowHeight = eventsShadow[char._eventId].bitmap.height;
+                    eventsShadow[char._eventId].move(this.x + char._eShadowOffsetX - shadowWidth/2, this.y + char._eShadowOffsetY - shadowHeight);
+                    eventsShadow[char._eventId].z = this.z;
+                }
             }
             
             if (char._eventGfxOffsetX != undefined && char._eventGfxOffsetX != 0) { this.x += char._eventGfxOffsetX; }
@@ -288,24 +252,31 @@
                 char.hAngle += angleRad/10 * char._eventHSlideSpeed;
                 this.x += char._eventHSlideSize * Math.sin(char.hAngle) - char._eventHSlideSize;
             }
-            if (eventsBgImage[char._eventId] != undefined && eventsBgImage[char._eventId]._isNew && eventsBgImage[char._eventId].bitmap.isReady()) {
-                var selfPosition = this.parent.children.indexOf(this);
-                this.parent.addChildAt(eventsBgImage[char._eventId], selfPosition);
-                eventsBgImage[char._eventId]._isNew = false;
+            
+            if (eventsBgImage[char._eventId] != undefined) {
+                if (eventsBgImage[char._eventId]._isNew && eventsBgImage[char._eventId].bitmap.isReady()) {
+                    var selfPosition = this.parent.children.indexOf(this);
+                    this.parent.addChildAt(eventsBgImage[char._eventId], selfPosition);
+                    eventsBgImage[char._eventId]._isNew = false;
+                }
+                if (char._eventBgImageOffsetX != undefined && char._eventBgImageOffsetY != undefined) {
+                    eventsBgImage[char._eventId].move(this.x + char._eventBgImageOffsetX, this.y + char._eventBgImageOffsetY);
+                    eventsBgImage[char._eventId].z = this.z;
+                }
             }
-            if (char._eventBgImageOffsetX != undefined && char._eventBgImageOffsetY != undefined) {
-                eventsBgImage[char._eventId].move(this.x + char._eventBgImageOffsetX, this.y + char._eventBgImageOffsetY);
-                eventsBgImage[char._eventId].z = this.z;
+            if (eventsFgImage[char._eventId] != undefined) {
+                if (eventsFgImage[char._eventId]._isNew && eventsFgImage[char._eventId].bitmap.isReady()) {
+                    var selfPosition = this.parent.children.indexOf(this);
+                    this.parent.addChildAt(eventsFgImage[char._eventId], selfPosition+1);
+                    eventsFgImage[char._eventId]._isNew = false;
+                }
+                if (char._eventFgImageOffsetX != undefined && char._eventFgImageOffsetY != undefined) {
+                    eventsFgImage[char._eventId].move(this.x + char._eventFgImageOffsetX, this.y + char._eventFgImageOffsetY);
+                    eventsFgImage[char._eventId].z = 100;
+                }
             }
-            if (eventsFgImage[char._eventId] != undefined && eventsFgImage[char._eventId]._isNew && eventsFgImage[char._eventId].bitmap.isReady()) {
-                var selfPosition = this.parent.children.indexOf(this);
-                this.parent.addChildAt(eventsFgImage[char._eventId], selfPosition+1);
-                eventsFgImage[char._eventId]._isNew = false;
-            }
-            if (char._eventFgImageOffsetX != undefined && char._eventFgImageOffsetY != undefined) {
-                eventsFgImage[char._eventId].move(this.x + char._eventFgImageOffsetX, this.y + char._eventFgImageOffsetY);
-                eventsFgImage[char._eventId].z = 100;
-            }
+            
+            
             if (char._eventAniFrames != undefined && char._eventAniPause != undefined && char._eventAniSpeed != 0 && char._eventAniReverse != undefined ) {
                 if (char._eventAniPauseCurrent == 0) {
                     
@@ -351,8 +322,7 @@
                     var shiftX = (eventsShadow[char._eventId].bitmap.width - eventsShadow[char._eventId].bitmap.width * scale) / 2;
                     eventsShadow[char._eventId].x += shiftX;
                 }
-            }
-            
+            }            
         }
     };
 
@@ -365,18 +335,64 @@
         }
         return comments;
     };
+
+    var Spriteset_Map_createCharacters = Spriteset_Map.prototype.createCharacters;
+    Spriteset_Map.prototype.createCharacters = function() {
+        Spriteset_Map_createCharacters.call(this);
+        reAddEventGraphics();
+    }
+
+    var Game_Event_refresh = Game_Event.prototype.refresh;
+    Game_Event.prototype.refresh = function() {
+        var newPageIndex = this._erased ? -1 : this.findProperPageIndex();
+        var isRefresh = (this._pageIndex !== newPageIndex);
+        Game_Event_refresh.call(this);
+        if (isRefresh) {
+            refreshEventsGraphics();
+        } else {
+            reAddEventGraphics();
+        }
+    };
     
-    var Game_Event_setupPage = Game_Event.prototype.setupPage;
-    Game_Event.prototype.setupPage = function() {
-        Game_Event_setupPage.call(this);
-        eventsBgImage.forEach(function callback(currentValue, index, array) {
-            eventsBgImage[index]._isNew = true;
+    function reAddEventGraphics() {   
+        eventsBgImage.forEach(function callback(event, index, array) {
+            if (eventsBgImage[index] != undefined) {
+                eventsBgImage[index]._isNew = true;
+            }
         });
-        eventsFgImage.forEach(function callback(currentValue, index, array) {
-            eventsFgImage[index]._isNew = true;
+        eventsFgImage.forEach(function callback(event, index, array) {
+            if (eventsFgImage[index] != undefined) {
+                eventsFgImage[index]._isNew = true;
+            }
         });
-        eventsShadow.forEach(function callback(currentValue, index, array) {
-            eventsShadow[index]._isNew = true;
+        eventsShadow.forEach(function callback(event, index, array) {
+            if (eventsShadow[index] != undefined) {
+                eventsShadow[index]._isNew = true;
+            }
+        });
+    }
+    
+    function refreshEventsGraphics() {    
+        eventsBgImage.forEach(function callback(event, index, array) {
+            if (!event._isNew) {
+                event.parent.parent.removeChild(event);
+                delete eventsBgImage[index];
+                eventsBgImage.length -= 1;
+            }
+        });
+        eventsFgImage.forEach(function callback(event, index, array) {
+            if (!event._isNew) {
+                event.parent.parent.removeChild(event);
+                delete eventsFgImage[index];
+                eventsFgImage.length -= 1;
+            }
+        });
+        eventsShadow.forEach(function callback(event, index, array) {
+            if (!event._isNew) {
+                event.parent.parent.removeChild(event);
+                delete eventsShadow[index];
+                eventsShadow.length -= 1;
+            }
         });
     }
 
