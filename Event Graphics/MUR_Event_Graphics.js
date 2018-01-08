@@ -1,12 +1,12 @@
 //=============================================================================
-// MUR Event Graphics v1.4
+// MUR Event Graphics v1.4a
 // by MUR (https://github.com/murlab)
 // BSD 3-Clause License
 // Free for use with both free and commercial RPG Maker games.
 //=============================================================================
 
 /*:en
- * @plugindesc v1.4 Graphics for events
+ * @plugindesc v1.4a Graphics for events
  * @author Mur
  * @help This plug-in does not have any additional settings, and all control takes
  * place through comments at the beginning of the event:
@@ -55,7 +55,7 @@
  *
  */
  /*:ru
-* @plugindesc v1.4 Графика для событий
+* @plugindesc v1.4a Графика для событий
  * @author Mur
  * @help Данный плагин не имеет дополнительных настроек, а всё управление происходит
  * через комментарии в начале события:
@@ -201,6 +201,30 @@
                         this._eShadowOffsetY = shadow[2] ? Number(shadow[2]) : 0;
                         eventsShadow[this._eventId]._isNew = true;
                     } 
+                }
+            } else {
+                if (eventsBgImage[this._eventId]) {
+                    eventsBgImage[this._eventId].parent.removeChild(eventsBgImage[this._eventId]);
+                    delete eventsBgImage[this._eventId];
+                    this._eventBgImageOffsetX = undefined;
+                    this._eventBgImageOffsetY = undefined;
+                    eventsBgImage.length -= 1;
+                }
+                
+                if (eventsFgImage[this._eventId]) {
+                    eventsFgImage[this._eventId].parent.removeChild(eventsFgImage[this._eventId]);
+                    delete eventsFgImage[this._eventId];
+                    this._eventFgImageOffsetX = undefined;
+                    this._eventFgImageOffsetY = undefined;
+                    eventsFgImage.length -= 1;
+                }
+                
+                if (eventsShadow[this._eventId]) {
+                    eventsShadow[this._eventId].parent.removeChild(eventsShadow[this._eventId]);
+                    delete eventsShadow[this._eventId];
+                    this._eShadowOffsetX = undefined;
+                    this._eShadowOffsetY = undefined;
+                    eventsShadow.length -= 1;
                 }
             }
         }
@@ -372,7 +396,7 @@
         });
     }
     
-    function refreshEventsGraphics() {    
+    function refreshEventsGraphics() {
         eventsBgImage.forEach(function callback(event, index, array) {
             if (!event._isNew) {
                 event.parent.parent.removeChild(event);
