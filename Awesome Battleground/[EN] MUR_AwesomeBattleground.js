@@ -1,12 +1,12 @@
 //=============================================================================
-// MUR Awesome Battleground v1.1
+// MUR Awesome Battleground v1.1a
 // by MUR (https://github.com/murlab)
 // BSD 3-Clause License
 // Free for use with both free and commercial RPG Maker games.
 //=============================================================================
 
 /*:
- * @plugindesc v1.1 Background + effects for the battle
+ * @plugindesc v1.1a Background + effects for the battle
  * @author Mur
  * @help You can set the battle background for each region,
  * as well as add additional effects
@@ -39,7 +39,7 @@
  * @default 624
  * @min 480
  *
- * @param wildScreenDetect
+ * @param wideScreenDetect
  * @text Correct the aspect ratio?
  * @desc The width of the screen will be corrected.
  * Actual for widescreen screens (without black bars on the sides)
@@ -456,11 +456,11 @@
     var angle = 2 * Math.PI/180;
 
     if (screenResolutionEnable) {
-        var detectWildscreen = params["wildScreenDetect"].toUpperCase() == "TRUE" ? true : false;
+        var detectWidescreen = params["wideScreenDetect"].toUpperCase() == "TRUE" ? true : false;
         var screenWidth = Number(params['screenWidth'] || 816);
         var screenHeight = Number(params['screenHeight'] || 624);
 
-        if (detectWildscreen) {
+        if (detectWidescreen) {
             var originalWidth = screen.width;
             var originalHeight = screen.height;
             var percent = originalWidth/originalHeight;

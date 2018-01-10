@@ -1,12 +1,12 @@
 //=============================================================================
-// MUR Awesome Battleground v1.1
+// MUR Awesome Battleground v1.1a
 // by MUR (https://github.com/murlab)
 // BSD 3-Clause License
 // Free for use with both free and commercial RPG Maker games.
 //=============================================================================
 
 /*:
- * @plugindesc v1.1 Фон + эффекты для битвы
+ * @plugindesc v1.1a Фон + эффекты для битвы
  * @author Mur
  * @help Позволяет задать фон битвы для каждого региона, а также
  * добавить дополнительные эффекты
@@ -39,7 +39,7 @@
  * @default 624
  * @min 480
  *
- * @param wildScreenDetect
+ * @param wideScreenDetect
  * @text корректировать соотношение сторон?
  * @desc Ширина экрана будет подкоректирована. Актуально для
  * широкоформатных экранов (без чёрных полос по бокам)
@@ -463,7 +463,7 @@
     if (screenResolutionEnable) {
     
         // Данный параметр используется для корректировки соотношения сторон между 4:3 и 16:9
-        var detectWildscreen = params["wildScreenDetect"].toUpperCase() == "TRUE" ? true : false;
+        var detectWidescreen = params["wideScreenDetect"].toUpperCase() == "TRUE" ? true : false;
         
         // Получаем значение ширины и высоты экрана, если параметры не заданы или заданы некорректно,
         // то будут использованы значение по умолчанию (ширина 816 и высота 624)
@@ -471,7 +471,7 @@
         var screenHeight = Number(params['screenHeight'] || 624);
 
         // Корректировка разрешена?
-        if (detectWildscreen) {
+        if (detectWidescreen) {
             // Получаем оригинальное разрешение монитора
             var originalWidth = screen.width;
             var originalHeight = screen.height;
