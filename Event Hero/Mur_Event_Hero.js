@@ -1,12 +1,12 @@
 //=============================================================================
-// MUR Event Hero v1.0
+// MUR Event Hero v1.0a
 // by MUR (https://github.com/murlab)
 // BSD 3-Clause License
 // Free for use with both free and commercial RPG Maker games.
 //=============================================================================
 
 /*:en
- * @plugindesc v1.0 Event Hero
+ * @plugindesc v1.0a Event Hero
  * @author Mur
  * @help This plug-in does not have any additional settings, and all control takes
  * place through comments at the beginning of the event:
@@ -15,7 +15,7 @@
  *
  */
 /*:ru
- * @plugindesc v1.0 Герой события
+ * @plugindesc v1.0a Герой события
  * @author Mur
  * @help Данный плагин не имеет дополнительных настроек, а всё управление происходит
  * через комментарии в начале события:
@@ -36,7 +36,7 @@
                     var shift = comments.match(/<hero:\s*(.*)>/im)[1].split(/(?:\s+,\s+|,\s+|\s+,|\s+|,)/);
                     this._heroId = shift[0] ? Number(shift[0]) : 0;
                     this._heroRefresh = true;
-                    console.log("Set new hero Id:" + this._heroId);
+//                    console.log("Set new hero Id:" + this._heroId);
                 }
             }
         }
